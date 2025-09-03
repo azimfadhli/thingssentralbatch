@@ -1,0 +1,19 @@
+###################################
+# Datatypes (KEYWORD1)
+###################################
+
+ThingsSentralBulk	KEYWORD1
+
+###################################
+# Methods and Functions (KEYWORD2)
+###################################
+
+addData	KEYWORD2
+send	KEYWORD2
+count	KEYWORD2
+resetBuffer	KEYWORD2
+
+###################################
+# Constants (LITERAL1)
+###################################
+
