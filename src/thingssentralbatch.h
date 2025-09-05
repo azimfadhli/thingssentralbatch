@@ -42,7 +42,7 @@ public:
 
   // Enhanced error handling methods
   String getLastError() const;
-  static String c_str(ErrorCode code); // Converts error code t
+  static String errorCodeToString(ErrorCode code); // Converts error code t
 
 private:
   String _serverURL;

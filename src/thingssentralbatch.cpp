@@ -65,7 +65,7 @@ const String &ThingsSentralBatch::get_serverURL() const { return _serverURL; }
 const String &ThingsSentralBatch::get_userID() const { return _userID; }
 String ThingsSentralBatch::getLastError() const { return _lastError; }
 
-String ThingsSentralBatch::c_str(ErrorCode code)
+String ThingsSentralBatch::errorCodeToString(ErrorCode code)
 {
   switch (code)
   {
