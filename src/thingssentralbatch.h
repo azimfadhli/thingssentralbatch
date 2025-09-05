@@ -12,22 +12,46 @@
 #error "Unsupported platform. This library only supports ESP8266 and ESP32"
 #endif
 
-class ThingsSentralBatch {
-  public:
-    ThingsSentralBatch(const String& serverURL, const String& userID);
-    void addData(const String& nodeID, float value);
-    void addData(const String& nodeID, int value);
-    void addData(const String& nodeID, const String& value);
-    bool send();
-    void resetBuffer();
-    void set_serverURL(const String& serverURL);
-    int count() const;
+class ThingsSentralBatch
+{
+public:
+  enum ErrorCode
+  {
+    SUCCESS = 0,
+    ERROR_NO_DATA,
+    ERROR_WIFI_DISCONNECTED,
+    ERROR_INTERNET_DISCONNECTED,
+    ERROR_HTTP_REQUEST_FAILED,
+    ERROR_SERVER_RESPONSE_INVALID,
+    ERROR_UNKNOWN
+  };
 
-  private:
-    String _serverURL;
-    String _userID;
-    String _dataBuffer;
-    int _dataCount;
+  ThingsSentralBatch(const String &serverURL, const String &userID);
+  void addData(const String &nodeID, float value);
+  void addData(const String &nodeID, int value);
+  void addData(const String &nodeID, const String &value);
+  ErrorCode send();
+  void resetBuffer();
+  int count() const;
+
+  void set_default_serverURL();
+  void set_serverURL(const String &serverURL);
+  void set_userID(const String &serverURL);
+  const String &get_serverURL() const;
+  const String &get_userID() const;
+
+  // Enhanced error handling methods
+  String getLastError() const;
+  static String c_str(ErrorCode code); // Converts error code t
+
+private:
+  String _serverURL;
+  String _userID;
+  String _dataBuffer;
+  int _dataCount;
+  String _lastError;
+
+  bool checkWiFiConnection();
 };
 
 #endif
