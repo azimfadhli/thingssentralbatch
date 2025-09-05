@@ -36,7 +36,7 @@ public:
 
   void set_default_serverURL();
   void set_serverURL(const String &serverURL);
-  void set_userID(const String &serverURL);
+  void set_userID(const String &userID);
   const String &get_serverURL() const;
   const String &get_userID() const;
 
