@@ -32,7 +32,7 @@ void setup() {
   // Connect to WiFi
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
+  Serial.println("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -47,7 +47,7 @@ void loop() {
   tsBatch.addData("status", "1");               // String value
 
   // Send the data
-  if (tsBatch.send()) {
+  if (!tsBatch.send()) {
     Serial.println("Data sent successfully!");
   } else {
     Serial.println("Failed to send data");

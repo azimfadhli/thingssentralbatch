@@ -46,7 +46,7 @@ void loop() {
   tsBatch.addData("status", "1");               // String value
 
   // Send the batch
-  if (tsBatch.send()) {
+  if (!tsBatch.send()) {
     Serial.println("Batch sent successfully!");
   } else {
     Serial.println("Failed to send batch");
