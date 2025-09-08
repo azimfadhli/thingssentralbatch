@@ -1,6 +1,5 @@
 #ifndef thingssentralbatch_h
 #define thingssentralbatch_h
-
 // Platform detection
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
@@ -11,6 +10,9 @@
 #else
 #error "Unsupported platform. This library only supports ESP8266 and ESP32"
 #endif
+
+#define BUFFER_LIMIT_MAX 500
+#define BUFFER_LIMIT_DEFAULT 250
 
 class ThingsSentralBatch
 {
@@ -37,6 +39,7 @@ public:
   void set_default_serverURL();
   void set_serverURL(const String &serverURL);
   void set_userID(const String &userID);
+  void set_bufferLimit(int value);
   const String &get_serverURL() const;
   const String &get_userID() const;
 
@@ -50,6 +53,7 @@ private:
   String _dataBuffer;
   int _dataCount;
   String _lastError;
+  int _bufferLimit = BUFFER_LIMIT_DEFAULT;
 
   bool checkWiFiConnection();
 };

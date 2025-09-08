@@ -15,9 +15,33 @@ void ThingsSentralBatch::addData(const String &nodeID, int value)
 
 void ThingsSentralBatch::addData(const String &nodeID, const String &value)
 {
+  if (nodeID == "" || value == "")
+    return;
+
   if (_dataCount == 0)
   {
     _dataBuffer = "userid|" + _userID;
+  }
+
+  if (_dataCount > _bufferLimit - 1)
+  {
+    int firstAtPos = _dataBuffer.indexOf('@');
+    if (firstAtPos == -1)
+      return; // No '@' found
+
+    int secondAtPos = _dataBuffer.indexOf('@', firstAtPos + 1);
+
+    if (secondAtPos == -1)
+    {
+      // Only one segment after '@', remove everything from first '@'
+      _dataBuffer.remove(firstAtPos);
+    }
+    else
+    {
+      // Remove the content between the first and second '@'
+      _dataBuffer.remove(firstAtPos, secondAtPos - firstAtPos);
+    }
+    _dataCount--;
   }
   _dataBuffer += "@" + nodeID + "|" + value;
   _dataCount++;
@@ -58,6 +82,21 @@ void ThingsSentralBatch::set_userID(const String &userID)
   else
   {
     _userID = "DefaultUserID";
+  }
+}
+
+void ThingsSentralBatch::set_bufferLimit(int value)
+{
+  if (value > 0 && value <= BUFFER_LIMIT_MAX)
+  {
+
+    Serial.println("value > 0 && value <= BUFFER_LIMIT_MAX");
+    _bufferLimit = value;
+  }
+  else
+  {
+    Serial.println("else BUFFER_LIMIT_DEFAULT");
+    _bufferLimit = BUFFER_LIMIT_DEFAULT;
   }
 }
 
