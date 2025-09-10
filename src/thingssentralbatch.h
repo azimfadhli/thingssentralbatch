@@ -13,6 +13,19 @@
 
 #define BUFFER_LIMIT_MAX 500
 #define BUFFER_LIMIT_DEFAULT 250
+#define API_LINK_SENT_DEFAULT "http://thingssentral.io/postlong?data="
+#define API_LINK_READ_DEFAULT "http://thingssentral.io/ReadNode?Params="
+
+// Legacy Code
+extern String TSuserID;
+extern String APIlinkRead;
+extern String APIlinkSent;
+String IRAM_ATTR GET(String completedLink);
+String IRAM_ATTR readNode(String __NodeID, bool _fullReply = false);
+String IRAM_ATTR sendNode(String _NodeID1, String _Data1,
+                          String _NodeID2 = "", String _Data2 = "",  // OPTIONAL PARAM
+                          String _NodeID3 = "", String _Data3 = "",  // OPTIONAL PARAM
+                          String _NodeID4 = "", String _Data4 = ""); // OPTIONAL PARAM
 
 class ThingsSentralBatch
 {
@@ -25,7 +38,8 @@ public:
     ERROR_INTERNET_DISCONNECTED,
     ERROR_HTTP_REQUEST_FAILED,
     ERROR_SERVER_RESPONSE_INVALID,
-    ERROR_UNKNOWN
+    ERROR_UNKNOWN,
+    ERROR_BLANK_NODE_ID
   };
 
   ThingsSentralBatch(const String &serverURL, const String &userID);
@@ -35,6 +49,7 @@ public:
   ErrorCode send();
   void resetBuffer();
   int count() const;
+  ErrorCode readNode(const String &nodeID);
 
   void set_default_serverURL();
   void set_serverURL(const String &serverURL);

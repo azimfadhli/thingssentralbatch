@@ -64,13 +64,13 @@ void ThingsSentralBatch::set_serverURL(const String &serverURL)
   else
   {
     // Handle invalid URL, throw exception, or use default
-    _serverURL = "http://thingssentral.io/postlong?data=";
+    _serverURL = API_LINK_SENT_DEFAULT;
   }
 }
 
 void ThingsSentralBatch::set_default_serverURL()
 {
-  _serverURL = "http://thingssentral.io/postlong?data=";
+  _serverURL = API_LINK_SENT_DEFAULT;
 }
 
 void ThingsSentralBatch::set_userID(const String &userID)
@@ -198,4 +198,138 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::send()
   // since the HTTP status code is unreliable
   resetBuffer();
   return SUCCESS;
+}
+
+ThingsSentralBatch::ErrorCode ThingsSentralBatch::readNode(const String &nodeID)
+{
+  /*   // Reset error message
+    _lastError = "";
+   */
+  // Check if there's data to send
+  if (nodeID == "")
+  {
+    // _lastError = "No data to send";
+    return ERROR_BLANK_NODE_ID;
+  }
+
+  // Check WiFi connection
+  if (!checkWiFiConnection())
+  {
+    return ERROR_WIFI_DISCONNECTED;
+  }
+
+  String url = String(API_LINK_READ_DEFAULT) + String("tokenid|") + _userID + String("@NodeId|") + nodeID; // Use the stored server URL
+  Serial.println("thingssentral.h READ: " + url);
+
+  HTTPClient http;
+#ifdef ESP32
+  http.begin(url);
+#else
+  WiFiClient client;
+  http.begin(client, url);
+#endif
+
+  // Set timeout (10 seconds)
+  http.setTimeout(10000);
+
+  int httpCode = http.GET();
+  String reply = http.getString();
+  http.end();
+  /*
+    // Since HTTP code is unreliable for TS server, we'll focus on the reply content
+    if (httpCode <= 0)
+    {
+      // HTTP request failed (timeout, connection refused, etc.)
+      _lastError = "HTTP request failed with error: " + String(httpCode);
+      return ERROR_HTTP_REQUEST_FAILED;
+    }
+   */
+  if (reply == "")
+  {
+    _lastError = "Blank reply from server";
+    return ERROR_SERVER_RESPONSE_INVALID;
+  }
+
+  // Add custom response validation here based on your server's actual behavior
+  // For example, if your server returns "OK" on success:
+  // if (reply.indexOf("OK") != -1) {
+  //   resetBuffer();
+  //   return SUCCESS;
+  // }
+
+  // For now, we'll assume any non-empty response is success
+  // since the HTTP status code is unreliable
+  // resetBuffer();
+  return SUCCESS;
+}
+
+// Legacy codes
+String TSuserID = "00123";
+String APIlinkRead = "http://thingssentral.io/ReadNode?Params=tokenid|" + TSuserID + "@NodeId|";
+String APIlinkSent = "http://thingssentral.io/postlong?data=userid|" + TSuserID;
+
+String IRAM_ATTR GET(String completedLink)
+{
+  HTTPClient http;
+
+#ifdef ESP32
+  http.begin(completedLink);
+#else
+  WiFiClient client;
+  http.begin(client, completedLink);
+#endif
+
+  http.GET();
+  String reply = http.getString();
+  http.end();
+  return reply;
+}
+
+String IRAM_ATTR readNode(String __NodeID, bool _fullReply)
+{
+  Serial.println(APIlinkRead + __NodeID);
+  String _reply = GET(APIlinkRead + __NodeID);
+  if (_reply == "")
+  {
+    Serial.println("thingssentral.h: error, blank reply from server. Check connection. : " + __NodeID);
+    return "error";
+  }
+
+  String _valueOnly = _reply.substring(_reply.indexOf("|") + 1,
+                                       _reply.indexOf("|", _reply.indexOf("|") + 1));
+  Serial.println("thingssentral.h: readNode: " + _valueOnly);
+
+  if (_fullReply)
+  {
+    return _reply;
+  }
+  else
+  {
+    return _valueOnly;
+  }
+}
+
+String IRAM_ATTR sendNode(String _NodeID1, String _Data1,
+                          String _NodeID2, String _Data2, // OPTIONAL PARAM
+                          String _NodeID3, String _Data3, // OPTIONAL PARAM
+                          String _NodeID4, String _Data4) // OPTIONAL PARAM
+{
+  String completedLink = APIlinkSent;
+  completedLink.concat(String("@") + _NodeID1 + "|" + String(_Data1));
+  if (_NodeID2 != "")
+    completedLink.concat(String("@") + _NodeID2 + "|" + String(_Data2));
+  if (_NodeID3 != "")
+    completedLink.concat(String("@") + _NodeID3 + "|" + String(_Data3));
+  if (_NodeID4 != "")
+    completedLink.concat(String("@") + _NodeID4 + "|" + String(_Data4));
+
+  String _reply = GET(completedLink);
+  if (_reply == "")
+  {
+    Serial.println("thingssentral.h: error, blank reply from server. Check connection.");
+    return "error";
+  }
+
+  Serial.println("thingssentral.h: sendNode: " + _reply);
+  return _reply;
 }
