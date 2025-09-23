@@ -58,6 +58,7 @@ public:
   void addData(const String &nodeID, int value);
   void addData(const String &nodeID, const String &value);
   ErrorCode send();
+  int send2();
   void resetBuffer();
   int count() const;
   ErrorCode readNode(const String &nodeID);

@@ -200,6 +200,71 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::send()
   return SUCCESS;
 }
 
+int ThingsSentralBatch::send2()
+{
+  // Reset error message
+  _lastError = "";
+
+  // Check if there's data to send
+  if (_dataCount == 0)
+  {
+    _lastError = "No data to send";
+    return 1000; // error code no data in buffer
+  }
+
+  // Check WiFi connection
+  if (!checkWiFiConnection())
+  {
+    return 2000; // error code wifi disconnected
+  }
+
+  HTTPClient http;
+  http.setTimeout(2500);
+
+  Serial.println("thingssentral.h: URL:" + _serverURL + _dataBuffer);
+
+#ifdef ESP32
+  if (http.begin(_serverURL + _dataBuffer))
+#else
+  WiFiClient client;
+  if (http.begin(client, _serverURL + _dataBuffer))
+#endif
+  {
+    int _httpCode = http.GET();
+    // result.httpCode = _httpCode;
+
+    if (_httpCode > 0)
+    {
+      Serial.printf("[HTTP] GET... code: %d\n", _httpCode);
+
+      if (_httpCode == HTTP_CODE_OK || _httpCode == HTTP_CODE_MOVED_PERMANENTLY || _httpCode == 404)
+      {
+        String payload = http.getString();
+        http.end();
+
+        if (payload != "")
+        {
+          Serial.println("[read2] Server response: " + payload);
+          resetBuffer();
+          return 0; // return 0 success!
+        }
+      }
+    }
+    else
+    {
+      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(_httpCode).c_str());
+      return _httpCode;
+    }
+  }
+  else
+  {
+    Serial.println("[HTTP] Unable to connect");
+    return 3000; // error code: http cant even begin
+  }
+
+  return 4000; // error code: unknown error
+}
+
 ThingsSentralBatch::ErrorCode ThingsSentralBatch::readNode(const String &nodeID)
 {
   /*   // Reset error message
