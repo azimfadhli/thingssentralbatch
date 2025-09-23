@@ -166,8 +166,8 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::send()
   http.begin(client, url);
 #endif
 
-  // Set timeout (10 seconds)
-  http.setTimeout(10000);
+  // Set timeout (2 seconds)
+  http.setTimeout(2500);
 
   int httpCode = http.GET();
   String reply = http.getString();
@@ -229,8 +229,8 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::readNode(const String &nodeID)
   http.begin(client, url);
 #endif
 
-  // Set timeout (10 seconds)
-  http.setTimeout(10000);
+  // Set timeout (2 seconds)
+  http.setTimeout(2500);
 
   int httpCode = http.GET();
   String reply = http.getString();
@@ -271,6 +271,7 @@ String APIlinkSent = "http://thingssentral.io/postlong?data=userid|" + TSuserID;
 String IRAM_ATTR GET(String completedLink)
 {
   HTTPClient http;
+  http.setTimeout(2500);
 
 #ifdef ESP32
   http.begin(completedLink);
@@ -332,4 +333,60 @@ String IRAM_ATTR sendNode(String _NodeID1, String _Data1,
 
   Serial.println("thingssentral.h: sendNode: " + _reply);
   return _reply;
+}
+
+// new readNode
+ReadResult IRAM_ATTR readNode2(String __NodeID)
+{
+  ReadResult result = {0, "", ""};
+  WiFiClient client;
+  HTTPClient http;
+  http.setTimeout(2500);
+
+  Serial.println("thingssentral.h: URL:" + APIlinkRead + __NodeID);
+
+  if (http.begin(client, APIlinkRead + __NodeID))
+  {
+    int _httpCode = http.GET();
+    result.httpCode = _httpCode;
+
+    if (_httpCode > 0)
+    {
+      Serial.printf("[HTTP] GET... code: %d\n", _httpCode);
+
+      if (_httpCode == HTTP_CODE_OK || _httpCode == HTTP_CODE_MOVED_PERMANENTLY || _httpCode == 404)
+      {
+        String payload = http.getString();
+
+        if (payload != "")
+        {
+          result.fullResponse = payload;
+
+          // Extract value between first and second pipe
+          int firstPipe = payload.indexOf("|");
+          int secondPipe = payload.indexOf("|", firstPipe + 1);
+
+          if (firstPipe != -1 && secondPipe != -1)
+          {
+            result.value = payload.substring(firstPipe + 1, secondPipe);
+          }
+
+          /* Serial.println("thingssentral.h: readNode full: " + result.fullResponse);
+          Serial.println("thingssentral.h: readNode value: " + result.value); */
+        }
+      }
+    }
+    else
+    {
+      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(_httpCode).c_str());
+    }
+
+    http.end();
+  }
+  else
+  {
+    Serial.println("[HTTP] Unable to connect");
+  }
+
+  return result;
 }

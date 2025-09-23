@@ -27,6 +27,17 @@ String IRAM_ATTR sendNode(String _NodeID1, String _Data1,
                           String _NodeID3 = "", String _Data3 = "",  // OPTIONAL PARAM
                           String _NodeID4 = "", String _Data4 = ""); // OPTIONAL PARAM
 
+// new readNode
+typedef struct
+{
+  int httpCode;
+  String value;
+  String fullResponse;
+} ReadResult;
+
+ReadResult IRAM_ATTR readNode2(String __NodeID);
+
+// send Node class
 class ThingsSentralBatch
 {
 public:
