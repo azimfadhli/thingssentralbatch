@@ -52,6 +52,20 @@ void loop() {
     Serial.println("Failed to send batch");
   }
 
+  delay(1000);
+
+  tsBatch.addData("temperature", float(32.4));  // Float value
+  tsBatch.addData("humidity", 86);              // Integer value
+  tsBatch.addData("status", "0");               // String value
+
+  // using new send method
+  int error = tsBatch.send2();
+  if (!error) {
+    Serial.println("Batch sent successfully!");
+  } else {
+    Serial.println("Failed to send batch! error code: " + String(error));
+  }
+
   // Wait before next transmission
   delay(60000);
 }
