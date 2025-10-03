@@ -16,7 +16,10 @@ void ThingsSentralBatch::addData(const String &nodeID, int value)
 void ThingsSentralBatch::addData(const String &nodeID, const String &value)
 {
   if (nodeID == "" || value == "")
+  {
+    Serial.println("nodeID or value is null");
     return;
+  }
 
   if (_dataCount == 0)
   {
