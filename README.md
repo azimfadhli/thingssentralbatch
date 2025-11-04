@@ -74,13 +74,12 @@ void loop() {
   tsBatch.addData("humidity", 65);        // Integer value
   tsBatch.addData("status", "active");    // String value
 
-  // Send data
-  ThingsSentralBatch::ErrorCode result = tsBatch.send();
-  
-  if (result == ThingsSentralBatch::SUCCESS) {
-    Serial.println("Data sent successfully!");
+  // using new send method
+  int error = tsBatch.send2();
+  if (!error) {
+    Serial.println("Batch sent successfully!");
   } else {
-    Serial.println("Error: " + ThingsSentralBatch::errorCodeToString(result));
+    Serial.println("Failed to send batch! error code: " + String(error));
   }
 
   delay(30000); // Wait 30 seconds before next transmission
@@ -105,9 +104,16 @@ Adds data to the batch with the specified node ID.
 
 ### Transmission Method
 ```cpp
-ErrorCode send()
+// using new send method
+int send2();
 ```
-Sends all batched data to the server. Returns an ErrorCode indicating success or failure type.
+Sends all batched data to the server.  Returns an intiger error code indicating success or failure type.
+
+```cpp
+ErrorCode send()  //deprecated
+```
+Sends all batched data to the server.  Returns an ErrorCode indicating success or failure type.
+
 
 ### Utility Methods
 ```cpp
@@ -119,7 +125,7 @@ String getLastError() const // Returns the last error message
 static String errorCodeToString(ErrorCode code) // Converts error code to readable string
 ```
 
-### Error Codes
+### Error Codes (deprecated)
 The library provides these error codes:
 - `SUCCESS`: Operation completed successfully
 - `ERROR_NO_DATA`: No data to send
