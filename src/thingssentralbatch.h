@@ -56,7 +56,7 @@ public:
     ERROR_BLANK_NODE_ID
   };
 
-  ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistant = 0);
+  ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistent = 0);
   void begin();
   void addData(const String &nodeID, float value);
   void addData(const String &nodeID, int value);
@@ -88,7 +88,7 @@ private:
   int _bufferLimit = BUFFER_LIMIT_DEFAULT;
   int _timeOut = TIMEOUT_DEFAULT;
   // File file;
-  bool _enablePersistant;
+  bool _enablePersistent;
 
   bool checkWiFiConnection();
   void write_File(const char *path, const String &message);

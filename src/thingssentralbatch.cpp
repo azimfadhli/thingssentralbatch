@@ -23,12 +23,12 @@ String ThingsSentralBatch::read_File(const char *path)
   return ""; // Return empty if read fails
 }
 
-ThingsSentralBatch::ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistant)
-    : _serverURL(serverURL), _userID(userID), _dataCount(0), _lastError(""), _enablePersistant(enablePersistant) {}
+ThingsSentralBatch::ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistent)
+    : _serverURL(serverURL), _userID(userID), _dataCount(0), _lastError(""), _enablePersistent(enablePersistent) {}
 
 void ThingsSentralBatch::begin()
 {
-  if (_enablePersistant)
+  if (_enablePersistent)
   {
     // Mount file system
     if (!LittleFS.begin())
@@ -88,7 +88,7 @@ void ThingsSentralBatch::addData(const String &nodeID, const String &value)
   _dataBuffer += "@" + nodeID + "|" + value;
   _dataCount++;
 
-  if (_enablePersistant)
+  if (_enablePersistent)
   {
     // --- WRITE ---
     write_File("/tsb_databuffer.txt", _dataBuffer);
@@ -103,7 +103,7 @@ void ThingsSentralBatch::resetBuffer()
   _dataBuffer = "";
   _dataCount = 0;
 
-  if (_enablePersistant)
+  if (_enablePersistent)
   {
     // --- WRITE ---
     write_File("/tsb_databuffer.txt", _dataBuffer);
