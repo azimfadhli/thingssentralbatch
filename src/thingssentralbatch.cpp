@@ -1,7 +1,46 @@
 #include "thingssentralbatch.h"
 
-ThingsSentralBatch::ThingsSentralBatch(const String &serverURL, const String &userID)
-    : _serverURL(serverURL), _userID(userID), _dataCount(0), _lastError("") {}
+// helper func
+void ThingsSentralBatch::write_File(const char *path, const String &message)
+{
+  File file = LittleFS.open(path, "w");
+  if (file)
+  {
+    file.print(message);
+    file.close();
+  }
+}
+
+String ThingsSentralBatch::read_File(const char *path)
+{
+  File file = LittleFS.open(path, "r");
+  if (file)
+  {
+    String data = file.readString();
+    file.close();
+    return data;
+  }
+  return ""; // Return empty if read fails
+}
+
+ThingsSentralBatch::ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistant)
+    : _serverURL(serverURL), _userID(userID), _dataCount(0), _lastError(""), _enablePersistant(enablePersistant) {}
+
+void ThingsSentralBatch::begin()
+{
+  if (_enablePersistant)
+  {
+    // Mount file system
+    if (!LittleFS.begin())
+    {
+      Serial.println("Mount failed");
+      return;
+    }
+    // --- READ ---
+    _dataBuffer = read_File("/tsb_databuffer.txt");
+    _dataCount = read_File("/tsb_datacount.txt").toInt();
+  }
+}
 
 void ThingsSentralBatch::addData(const String &nodeID, float value)
 {
@@ -48,6 +87,13 @@ void ThingsSentralBatch::addData(const String &nodeID, const String &value)
   }
   _dataBuffer += "@" + nodeID + "|" + value;
   _dataCount++;
+
+  if (_enablePersistant)
+  {
+    // --- WRITE ---
+    write_File("/tsb_databuffer.txt", _dataBuffer);
+    write_File("/tsb_datacount.txt", String(_dataCount));
+  }
 }
 
 int ThingsSentralBatch::count() const { return _dataCount; }
@@ -56,6 +102,13 @@ void ThingsSentralBatch::resetBuffer()
 {
   _dataBuffer = "";
   _dataCount = 0;
+
+  if (_enablePersistant)
+  {
+    // --- WRITE ---
+    write_File("/tsb_databuffer.txt", _dataBuffer);
+    write_File("/tsb_datacount.txt", String(_dataCount));
+  }
 }
 
 void ThingsSentralBatch::set_serverURL(const String &serverURL)

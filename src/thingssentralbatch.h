@@ -11,6 +11,8 @@
 #error "Unsupported platform. This library only supports ESP8266 and ESP32"
 #endif
 
+#include <LittleFS.h>
+
 #define BUFFER_LIMIT_MAX 500
 #define BUFFER_LIMIT_DEFAULT 250
 #define TIMEOUT_DEFAULT 2500
@@ -54,7 +56,8 @@ public:
     ERROR_BLANK_NODE_ID
   };
 
-  ThingsSentralBatch(const String &serverURL, const String &userID);
+  ThingsSentralBatch(const String &serverURL, const String &userID, bool enablePersistant = 0);
+  void begin();
   void addData(const String &nodeID, float value);
   void addData(const String &nodeID, int value);
   void addData(const String &nodeID, const String &value);
@@ -84,8 +87,12 @@ private:
   String _lastError;
   int _bufferLimit = BUFFER_LIMIT_DEFAULT;
   int _timeOut = TIMEOUT_DEFAULT;
+  // File file;
+  bool _enablePersistant;
 
   bool checkWiFiConnection();
+  void write_File(const char *path, const String &message);
+  String read_File(const char *path);
 };
 
 #endif

@@ -23,7 +23,7 @@ const char* password = "12345678";
 const String serverURL = "http://thingssentral.io/postlong?data=";
 const String userID = "your_USER_ID";
 
-ThingsSentralBatch tsBatch(serverURL, userID);
+ThingsSentralBatch tsBatch(serverURL, userID, true);
 
 void setup() {
   Serial.begin(115200);
@@ -37,6 +37,8 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nConnected to WiFi!");
+
+  tsBatch.begin();
 }
 
 void loop() {
