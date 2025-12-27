@@ -13,6 +13,7 @@
 
 #define BUFFER_LIMIT_MAX 500
 #define BUFFER_LIMIT_DEFAULT 250
+#define TIMEOUT_DEFAULT 2500
 #define API_LINK_SENT_DEFAULT "http://thingssentral.io/postlong?data="
 #define API_LINK_READ_DEFAULT "http://thingssentral.io/ReadNode?Params="
 
@@ -67,6 +68,7 @@ public:
   void set_serverURL(const String &serverURL);
   void set_userID(const String &userID);
   void set_bufferLimit(int value);
+  void set_timeOut(int value);
   const String &get_serverURL() const;
   const String &get_userID() const;
 
@@ -81,6 +83,7 @@ private:
   int _dataCount;
   String _lastError;
   int _bufferLimit = BUFFER_LIMIT_DEFAULT;
+  int _timeOut = TIMEOUT_DEFAULT;
 
   bool checkWiFiConnection();
 };

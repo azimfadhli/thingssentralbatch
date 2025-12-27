@@ -103,6 +103,18 @@ void ThingsSentralBatch::set_bufferLimit(int value)
   }
 }
 
+void ThingsSentralBatch::set_timeOut(int value)
+{
+  if (value > 0 /* && value <= BUFFER_LIMIT_MAX */)
+  {
+    _timeOut = value;
+  }
+  else
+  {
+    _timeOut = TIMEOUT_DEFAULT;
+  }
+}
+
 const String &ThingsSentralBatch::get_serverURL() const { return _serverURL; }
 const String &ThingsSentralBatch::get_userID() const { return _userID; }
 String ThingsSentralBatch::getLastError() const { return _lastError; }
@@ -170,7 +182,7 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::send()
 #endif
 
   // Set timeout (2 seconds)
-  http.setTimeout(2500);
+  http.setTimeout(_timeOut);
 
   int httpCode = http.GET();
   String reply = http.getString();
@@ -222,7 +234,7 @@ int ThingsSentralBatch::send2()
   }
 
   HTTPClient http;
-  http.setTimeout(2500);
+  http.setTimeout(_timeOut);
 
   Serial.println("thingssentral.h: URL:" + _serverURL + _dataBuffer);
 
@@ -298,7 +310,7 @@ ThingsSentralBatch::ErrorCode ThingsSentralBatch::readNode(const String &nodeID)
 #endif
 
   // Set timeout (2 seconds)
-  http.setTimeout(2500);
+  http.setTimeout(_timeOut);
 
   int httpCode = http.GET();
   String reply = http.getString();
